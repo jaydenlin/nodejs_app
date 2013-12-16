@@ -7,13 +7,28 @@ var express = require('express'),
   server.listen(8080);
 
   app.get('/', function (req, res) {
-	  res.sendfile(__dirname + '/index.html');
+	  res.sendfile(__dirname + '/remote.html');
   });
 
   io.sockets.on('connection', function (socket) {
 	  socket.emit('news', { hello: 'world' });
-	    socket.on('my other event', function (data) {
+	  socket.on('my other event', function (data) {
 		      console.log(data);
 			    });
+
+	  socket.on('remote:selectAnswer',function(data){
+	        socket.broadcast.emit('server:receiveAnswer', data);
+
+  	  });
+
+  	  socket.on('device:questionDone',function(data){
+		socket.broadcast.emit('server:prepareAnswers', JSON.parse(data));
+	        console.log(JSON.parse(data));
+
+  	  });
+
+          //socket.emit('server:prepareAnswers', {'preparedAnswers':['abc','def']});
+
   });
+
 

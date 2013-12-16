@@ -1,0 +1,56 @@
+<!DOCTYPE html> 
+<html> 
+<head> 
+	<title>My Page</title> 
+	<meta name="viewport" content="width=device-width, initial-scale=1"> 
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.min.css" />
+	<script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
+	<script src="http://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.min.js" defer></script>
+	<script src="/socket.io/socket.io.js"></script>
+</head> 
+<body> 
+
+<div data-role="page">
+
+	<div data-role="header">
+		<h1>Remote Controller</h1>
+	</div><!-- /header -->
+
+	<div data-role="content">	
+		<p>Answers</p>
+		<ul id="answer-list" data-role="listview" data-inset="true" data-filter="true">
+		</ul>		
+	</div><!-- /content -->
+
+</div><!-- /page -->
+</body>
+<script>
+
+var socket = io.connect('http://jaydenlin.tw:8080/');
+
+/*on*/
+socket.on('server:prepareAnswers',function(data){
+       console.log(data);
+       for(var i = 0 ; i< data.preparedAnswers.length; i++){
+	     //$('#answer-list list a').append(data.preparedAnswers[i]);
+             $('#answer-list').append('<li data-corners="false" data-shadow="false" data-iconshadow="true" data-wrapperels="div" data-icon="arrow-r" data-iconpos="right" data-theme="c" class="ui-btn ui-btn-icon-right ui-li-has-arrow ui-li ui-corner-top ui-btn-up-c">' 
++ '<div class="ui-btn-inner ui-li ui-corner-top"><div class="ui-btn-text">'
++'<a href="#" class="ui-link-inherit">'+data.preparedAnswers[i]+'</a></div><span class="ui-icon ui-icon-arrow-r ui-icon-shadow">&nbsp;</span></div></li>');
+       }
+
+});
+
+
+
+/*emit*/
+
+$('#answer-list').delegate( 'a','click',function(evt){
+	console.log(evt.currentTarget.innerText);
+        var selectedAnswer = evt.currentTarget.innerText;
+	socket.emit('remote:selectAnswer',{ 'selectedanswer': selectedAnswer});
+});
+
+
+</script>
+
+</html>
