@@ -26,7 +26,10 @@
 </body>
 <script>
 
-var socket = io.connect('http://jaydenlin.tw:8080/');
+var socket = io.connect('http://jaydenlin.tw:8080/test',{resource: 'test'});
+//var socket = io.connect('http://jaydenlin.tw:8080/?clientId='+clientId,{"force new connection":true});
+
+/*init*/
 socket.emit('remote:requestAnswers',{});
 
 /*on*/

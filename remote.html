@@ -15,18 +15,29 @@
 	<div data-role="header">
 		<h1>Remote Controller</h1>
 	</div><!-- /header -->
-
 	<div data-role="content">
                 <a id="load-answers" href="#" data-role="button">Load Answers</a>	
 		<ul id="answer-list" data-role="listview" data-inset="true" data-filter="false">
 		</ul>		
 	</div><!-- /content -->
+        <div data-role="footer" data-position="fixed" data-tap-toggle="false">
+            <form>
+                <input id="input-answer-text" type="text"  value="">
+                <a id="input-answer-button" href="#" data-role="button" data-inline="false">Submit</a>
+            </form>
+        </div>        
 
+        
 </div><!-- /page -->
 </body>
 <script>
 
-var socket = io.connect('http://jaydenlin.tw:8080/');
+var socket;
+var con = function(){
+
+socket = io.connect('http://jaydenlin.tw:8080/');
+
+/*init*/
 socket.emit('remote:requestAnswers',{});
 
 /*on*/
@@ -45,10 +56,12 @@ socket.on('server:prepareAnswers',function(data){
 /*debug*/
 socket.on('server:requestAnswers',function(data){
       console.log('server said that it is requesting answers from the device');
-
+      
 });
 
+}
 
+con();
 
 /*emit*/
 
@@ -60,11 +73,36 @@ $('#answer-list').delegate( 'a','click',function(evt){
 
 $('#load-answers').on('click',function(evt){
         //$('#answer-list').empty();
-        socket.emit('remote:requestAnswers',{});
+        if(socket.socket.connected){
+            socket.emit('remote:requestAnswers',{});
+        }else{
+            con();
+        }
         //socket.emit('remote:requestAnswers',{});
         console.log('load data pressed'); 
 
 });
-</script>
 
-</html>
+$('#input-answer-button').on('click',function(evt){
+    var input = $('#input-answer-text').val();
+    $('#input-answer-text').val("");
+    console.log(input);
+    socket.emit('remote:selectAnswer',{ 'selectedanswer': input});
+});
+
+
+$('#input-answer-text').on('keydown',function(evt){
+    if(evt.keyCode === 13){
+        evt.preventDefault();
+        evt.stopPropagation();
+	console.log('enter pressed');
+        var input = $('#input-answer-text').val();
+    	$('#input-answer-text').val("");
+    	console.log(input);
+    	socket.emit('remote:selectAnswer',{ 'selectedanswer': input});
+    }	
+
+});
+
+
+</script>
